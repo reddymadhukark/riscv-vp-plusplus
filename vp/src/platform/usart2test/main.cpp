@@ -208,11 +208,27 @@ int sc_main(int argc, char **argv)
     if (!opt.vcd_file.empty()) {
         tf = sc_core::sc_create_vcd_trace_file(opt.vcd_file.c_str());
         std::string a = "USART_A", b = "USART_B";
+        /* TXD / RXD frame content */
+        sc_core::sc_trace(tf, usart_a.sig_txd,        a + ".txd");
+        sc_core::sc_trace(tf, usart_a.sig_txd_parity, a + ".txd_parity");
+        sc_core::sc_trace(tf, usart_a.sig_txd_line,   a + ".txd_line");
+        sc_core::sc_trace(tf, usart_a.sig_rxd,        a + ".rxd");
+        sc_core::sc_trace(tf, usart_a.sig_rxd_parity, a + ".rxd_parity");
+        sc_core::sc_trace(tf, usart_a.sig_rxd_line,   a + ".rxd_line");
+        /* Interrupt STATUS */
         sc_core::sc_trace(tf, usart_a.sig_tbir, a + ".TBIR");
         sc_core::sc_trace(tf, usart_a.sig_tir,  a + ".TIR");
         sc_core::sc_trace(tf, usart_a.sig_rir,  a + ".RIR");
         sc_core::sc_trace(tf, usart_a.sig_eir,  a + ".EIR");
         sc_core::sc_trace(tf, usart_a.sig_irq,  a + ".IRQ");
+        /* TXD / RXD frame content */
+        sc_core::sc_trace(tf, usart_b.sig_txd,        b + ".txd");
+        sc_core::sc_trace(tf, usart_b.sig_txd_parity, b + ".txd_parity");
+        sc_core::sc_trace(tf, usart_b.sig_txd_line,   b + ".txd_line");
+        sc_core::sc_trace(tf, usart_b.sig_rxd,        b + ".rxd");
+        sc_core::sc_trace(tf, usart_b.sig_rxd_parity, b + ".rxd_parity");
+        sc_core::sc_trace(tf, usart_b.sig_rxd_line,   b + ".rxd_line");
+        /* Interrupt STATUS */
         sc_core::sc_trace(tf, usart_b.sig_tbir, b + ".TBIR");
         sc_core::sc_trace(tf, usart_b.sig_tir,  b + ".TIR");
         sc_core::sc_trace(tf, usart_b.sig_rir,  b + ".RIR");
