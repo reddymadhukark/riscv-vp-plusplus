@@ -74,8 +74,12 @@ struct Usart2 : sc_core::sc_module {
     {
         tsock.register_b_transport(this, &Usart2::b_transport);
         SC_THREAD(rx_thread);
+        /* TIR and byte delivery both fire after one frame duration */
         SC_METHOD(tir_method);
-        sensitive << m_tir_ev;
+        sensitive << m_frame_done_ev;
+        dont_initialize();
+        SC_METHOD(tx_deliver_method);
+        sensitive << m_frame_done_ev;
         dont_initialize();
     }
 
@@ -97,8 +101,12 @@ private:
     uint32_t m_status    = 0;
     uint8_t  m_rbuf      = 0;
     bool     m_rbuf_full = false;
+    uint8_t  m_tx_byte   = 0;    /* byte held until frame completes */
 
-    sc_core::sc_event m_tir_ev;
+    /* Single event fires after one frame duration (FRAME_DURATION).
+     * Both tir_method and tx_deliver_method are sensitive to it so TIR
+     * and byte delivery happen at exactly the same simulation time.       */
+    sc_core::sc_event m_frame_done_ev;
 
     /* Even parity over 8 data bits */
     static bool parity8(uint8_t b) {
@@ -143,15 +151,15 @@ private:
 
         case OFF_TBUF:
             if (is_wr) {
-                uint8_t byte = static_cast<uint8_t>(rd() & 0xFFu);
+                m_tx_byte = static_cast<uint8_t>(rd() & 0xFFu);
                 /* Update TXD trace: data, parity, line LOW (frame start) */
-                sig_txd.write(byte);
-                sig_txd_parity.write(parity8(byte));
+                sig_txd.write(m_tx_byte);
+                sig_txd_parity.write(parity8(m_tx_byte));
                 sig_txd_line.write(false);
-                tx_port.write(byte);
+                /* TBIR fires now; TIR + byte delivery fire after one frame */
                 m_status |= STATUS_TBIR;
                 fire_irq();
-                m_tir_ev.notify(sc_core::sc_time(2, sc_core::SC_US));
+                m_frame_done_ev.notify(sc_core::sc_time(2, sc_core::SC_US));
             }
             break;
 
@@ -199,6 +207,16 @@ private:
         }
     }
 
+    /* ── tx_deliver_method: forward byte to peer after one frame duration ─
+     * Per spec, RIR fires at the receiver when the stop bit is sampled —
+     * one full frame after the transmitter's TBUF write.  Co-fires with
+     * tir_method via the shared m_frame_done_ev.                          */
+    void tx_deliver_method()
+    {
+        tx_port.nb_write(m_tx_byte);        /* non-blocking: fifo always has space */
+    }
+
+    /* ── tir_method: TX-complete + line idle, one frame after TBUF write ── */
     void tir_method()
     {
         sig_txd_line.write(true);           /* frame complete: line back HIGH */
