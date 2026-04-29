@@ -67,9 +67,16 @@ struct Exiter : sc_core::sc_module {
 /* ── Options ──────────────────────────────────────────────────────────────── */
 
 struct UsartTestOptions : Options {
-    uint64_t mem_start_addr = 0x80000000;
-    uint64_t mem_size       = 0x01000000;  /* 16 MB */
-    uint64_t mem_end_addr   = 0x80FFFFFF;
+    uint64_t    mem_start_addr = 0x80000000;
+    uint64_t    mem_size       = 0x01000000;  /* 16 MB */
+    uint64_t    mem_end_addr   = 0x80FFFFFF;
+    std::string vcd_file;   /* basename for VCD output; empty = disabled */
+
+    UsartTestOptions() {
+        add_options()
+            ("vcd", po::value<std::string>(&vcd_file)->default_value(""),
+             "VCD output file basename (e.g. 'trace' writes trace.vcd)");
+    }
 
     /* Fixed peripheral addresses */
     static constexpr uint64_t CLINT_START   = 0x02000000;
@@ -196,11 +203,30 @@ int sc_main(int argc, char **argv)
     usart_a.plic = &plic;  usart_a.irq_id = 1;
     usart_b.plic = &plic;  usart_b.irq_id = 2;
 
+    /* Optional VCD tracing */
+    sc_core::sc_trace_file *tf = nullptr;
+    if (!opt.vcd_file.empty()) {
+        tf = sc_core::sc_create_vcd_trace_file(opt.vcd_file.c_str());
+        std::string a = "USART_A", b = "USART_B";
+        sc_core::sc_trace(tf, usart_a.sig_tbir, a + ".TBIR");
+        sc_core::sc_trace(tf, usart_a.sig_tir,  a + ".TIR");
+        sc_core::sc_trace(tf, usart_a.sig_rir,  a + ".RIR");
+        sc_core::sc_trace(tf, usart_a.sig_eir,  a + ".EIR");
+        sc_core::sc_trace(tf, usart_a.sig_irq,  a + ".IRQ");
+        sc_core::sc_trace(tf, usart_b.sig_tbir, b + ".TBIR");
+        sc_core::sc_trace(tf, usart_b.sig_tir,  b + ".TIR");
+        sc_core::sc_trace(tf, usart_b.sig_rir,  b + ".RIR");
+        sc_core::sc_trace(tf, usart_b.sig_eir,  b + ".EIR");
+        sc_core::sc_trace(tf, usart_b.sig_irq,  b + ".IRQ");
+        std::cout << "[VP] VCD tracing → " << opt.vcd_file << ".vcd\n";
+    }
+
     core.enable_trace(opt.trace_mode);
     new DirectCoreRunner(core);
 
     opt.handle_property_export_and_exit();
     sc_core::sc_start();
+    if (tf) sc_core::sc_close_vcd_trace_file(tf);
     core.show();
 
     return 0;
