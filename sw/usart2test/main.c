@@ -28,6 +28,15 @@
  *   5. TIR      : TX-complete fires 2 µs after TBIR (separate interrupt)
  */
 
+/* Test selection mask — bit N-1 enables Test N (default 0x1F = all five).
+ * Placed at a fixed address (0x80FFFF00) so the VP can patch it at runtime
+ * via --test-mask without recompiling.  Compile-time override: -DTEST_MASK=N */
+#ifndef TEST_MASK
+#define TEST_MASK 0x1Fu
+#endif
+volatile unsigned int g_test_mask
+    __attribute__((section(".test_cfg"))) = TEST_MASK;
+
 /* Bare-metal type definitions (no glibc/stdint.h — Linux cross-toolchain) */
 typedef unsigned char      uint8_t;
 typedef unsigned short     uint16_t;
@@ -456,11 +465,13 @@ void isr_main(void)
     setup_plic();
     enable_irq();
 
-    put_str("\r\n"); test1();
-    put_str("\r\n"); test2();
-    put_str("\r\n"); test3();
-    put_str("\r\n"); test4();
-    put_str("\r\n"); test5();
+    put_str("  TEST_MASK="); put_hex(g_test_mask); put_str("\r\n\r\n");
+
+    if (g_test_mask & 0x01u) { put_str("\r\n"); test1(); }
+    if (g_test_mask & 0x02u) { put_str("\r\n"); test2(); }
+    if (g_test_mask & 0x04u) { put_str("\r\n"); test3(); }
+    if (g_test_mask & 0x08u) { put_str("\r\n"); test4(); }
+    if (g_test_mask & 0x10u) { put_str("\r\n"); test5(); }
 
     put_str("\r\n================================================\r\n");
     put_str("  Passed: "); put_hex((uint32_t)g_pass);

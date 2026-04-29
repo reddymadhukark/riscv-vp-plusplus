@@ -4,9 +4,11 @@ AS  = $(RISCV_PREFIX)gcc
 LD  = $(RISCV_PREFIX)gcc
 
 # rv32imac_zicsr: base + multiply + atomics + compressed + CSR instructions
-ARCH    = rv32imac_zicsr
-ABI     = ilp32
-CFLAGS  = -march=$(ARCH) -mabi=$(ABI) -O1 -Wall
+ARCH     = rv32imac_zicsr
+ABI      = ilp32
+# TEST_MASK: bit N-1 = Test N.  0x1F = all, 0x01 = T1 only, 0x06 = T2+T3, etc.
+TEST_MASK ?= 0x1F
+CFLAGS   = -march=$(ARCH) -mabi=$(ABI) -O1 -Wall -DTEST_MASK=$(TEST_MASK)
 ASFLAGS = -march=$(ARCH) -mabi=$(ABI)
 LDFLAGS = -march=$(ARCH) -mabi=$(ABI) -nostartfiles -static -no-pie \
           -Wl,--no-relax -T link.ld

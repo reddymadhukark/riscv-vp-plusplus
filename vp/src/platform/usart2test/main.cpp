@@ -70,12 +70,26 @@ struct UsartTestOptions : Options {
     uint64_t    mem_start_addr = 0x80000000;
     uint64_t    mem_size       = 0x01000000;  /* 16 MB */
     uint64_t    mem_end_addr   = 0x80FFFFFF;
-    std::string vcd_file;   /* basename for VCD output; empty = disabled */
+    std::string  vcd_file;             /* basename for VCD output; empty = disabled */
+    unsigned int test_mask = 0x1Fu;    /* bit N-1 = Test N; 0x1F = all five */
+    std::string  test_mask_str;        /* raw string so 0x hex is accepted */
+
+    /* Fixed address of g_test_mask in firmware (see link.ld .test_cfg) */
+    static constexpr uint64_t TEST_MASK_ADDR = 0x80FFFF00;
 
     UsartTestOptions() {
         add_options()
             ("vcd", po::value<std::string>(&vcd_file)->default_value(""),
-             "VCD output file basename (e.g. 'trace' writes trace.vcd)");
+             "VCD output file basename (e.g. 'trace' writes trace.vcd)")
+            ("test-mask", po::value<std::string>(&test_mask_str)->default_value("0x1f"),
+             "test selection mask: bit N-1 enables Test N "
+             "(decimal or 0x hex, e.g. 0x05 = Tests 1+3, 0x1f = all)");
+    }
+
+    void parse(int argc, char **argv) override {
+        Options::parse(argc, argv);
+        test_mask = static_cast<unsigned int>(
+            std::strtoul(test_mask_str.c_str(), nullptr, 0));
     }
 
     /* Fixed peripheral addresses */
@@ -186,6 +200,15 @@ int sc_main(int argc, char **argv)
     } catch (ELFLoader::load_executable_exception &e) {
         std::cerr << e.what() << "\nRAM: 0x" << std::hex << opt.mem_start_addr << "\n";
         return -1;
+    }
+
+    /* Patch g_test_mask at its fixed address (0x80FFFF00) with --test-mask value.
+     * Done after ELF load so it overrides the compiled-in default. */
+    if (opt.test_mask != 0x1Fu) {
+        uint64_t off = opt.TEST_MASK_ADDR - opt.mem_start_addr;
+        uint32_t m   = static_cast<uint32_t>(opt.test_mask);
+        std::memcpy(mem.data + off, &m, sizeof(m));
+        std::cout << "[VP] test-mask patched → 0x" << std::hex << m << std::dec << "\n";
     }
 
     core.init(instr_mem_if, opt.use_dbbcache, data_mem_if, opt.use_lscache,

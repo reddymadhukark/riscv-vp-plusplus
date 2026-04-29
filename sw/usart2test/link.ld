@@ -17,6 +17,10 @@ SECTIONS
 
     /* Ensure nothing runs past 16 MB */
     ASSERT(. <= 0x81000000, "Firmware too large for 16 MB RAM")
+
+    /* Fixed address so the VP can patch g_test_mask at runtime via --test-mask.
+     * Must stay within RAM (0x80000000 + 16 MB) and above _stack_top. */
+    .test_cfg 0x80FFFF00 : { *(.test_cfg) }
 }
 
 /* Stack placed just below the top of 16 MB */
