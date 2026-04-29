@@ -103,6 +103,44 @@ Test 1: A sends 0x55, expect TBIR_A + RIR_B
 ================================================
 ```
 
+## Run a specific combination of tests
+
+Each test is selected by a bit in a 5-bit mask.  Bit N−1 enables Test N:
+
+| Bit | Test |
+|-----|------|
+| 0   | Test 1 — A→B 0x55 |
+| 1   | Test 2 — B→A 0xAA |
+| 2   | Test 3 — Overrun / EIR |
+| 3   | Test 4 — Multi-byte stream |
+| 4   | Test 5 — TIR TX-complete |
+
+**Option A — VP `--test-mask` flag (no recompile, decimal or 0x hex):**
+
+```bash
+$VP --test-mask 0x01 $FW          # Test 1 only
+$VP --test-mask 0x05 $FW          # Tests 1 + 3
+$VP --test-mask 0x12 $FW          # Tests 2 + 5
+$VP --test-mask 0x1f $FW          # All five (default)
+```
+
+The VP patches `g_test_mask` at address `0x80FFFF00` in RAM after loading
+the ELF, so this overrides any compiled-in default.
+
+**Option B — compile-time `make TEST_MASK=`:**
+
+```bash
+make TEST_MASK=0x0A               # Tests 2 + 4 baked in
+$VP $FW
+```
+
+**Both together** (runtime flag always wins):
+
+```bash
+make TEST_MASK=0x06               # compile default: Tests 2+3
+$VP --test-mask 0x10 $FW          # runtime override: Test 5 only
+```
+
 ## Run with VCD waveform output
 
 ```bash
