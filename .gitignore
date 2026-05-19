@@ -20,3 +20,16 @@ sw/basic-gcov/main.*
 sw/**/*.o
 .vscode/
 .idea/
+*.log
+*.so
+*.tar
+*.tar.gz
+*.zip
+*.o
+*.a
+sw/usart2_verif/logs/
+*.elf
+*.log
+*.bin
+build/
+

@@ -1,0 +1,125 @@
+========================================================================
+USART2 VP MODEL — KNOWN ISSUES AND SPEC DEVIATIONS
+Verified against: USART_Specification_v4.pdf (Revision 1.0)
+VP Source:       vp/src/platform/usart2test/usart2.h
+========================================================================
+
+BUG-001 | Severity: Low | Status: Open
+-----------------------------------------------------------------------
+Title:   CON Reserved Bits [31:16] Not Masked
+Spec:    CON[31:16] are reserved; writes must be ignored; reads must
+         return 0 for forward compatibility.
+Model:   VP stores the full 32-bit value in m_con without masking.
+         A write of 0xFFFFFFFF leaves m_con=0xFFFFFFFF; CON[31:16]
+         reads back non-zero.
+Test ID: RW-002
+Fix:     In b_transport case OFF_CON: m_con = rd() & 0x0000FFFFu;
+
+BUG-002 | Severity: Medium | Status: Open
+-----------------------------------------------------------------------
+Title:   BG Register (0x0C) Not Implemented
+Spec:    BG is a 13-bit dual-purpose register:
+           - Write: loads the reload register
+           - Read:  returns live downcounter value
+         f_BAUD = f_PRE / (16 * (BG_reload + 1))
+Model:   VP b_transport default case — no explicit handling of offset
+         0x0C. Reads return 0. Writes are silently discarded.
+         Baud rate is not simulated; frame duration is fixed at 2µs.
+Test ID: RW-006
+Fix:     Add OFF_BG = 0x0C case; implement m_bg_reload and a simulated
+         downcounter. Update frame delay to use calculated baud period.
+
+BUG-003 | Severity: Medium | Status: Open
+-----------------------------------------------------------------------
+Title:   FDR Register (0x10) Not Implemented
+Spec:    FDR implements a sigma-delta accumulator:
+           f_PRE = f_PERIPH * STEP / denominator
+         Active when CON.FDE = 1.
+Model:   VP b_transport default case — no explicit handling of 0x10.
+         Reads return 0. Writes silently discarded.
+Test ID: RW-007
+Fix:     Add OFF_FDR = 0x10 case; implement m_fdr_step and m_fdr_dm;
+         integrate with BG calculation when CON.FDE=1.
+
+BUG-004 | Severity: Medium | Status: Open
+-----------------------------------------------------------------------
+Title:   CON.LB Loopback Not Functional
+Spec:    CON.LB=1 connects TSR output to RSR input internally.
+         TXD continues to operate normally.
+         CON.REN=1 required for receive path to work.
+Model:   CON.LB is stored in m_con but has no effect on byte routing.
+         sc_fifo connections are hard-wired in sc_main at elaboration
+         time. Setting CON.LB=1 does NOT loop bytes back to self.
+Test ID: LB-004
+Fix:     In tx_deliver_method: check (m_con & CON_LB) && rx_port bound;
+         if set, call rx_port.nb_write(m_tx_byte) (self-loop) instead
+         of tx_port.nb_write(m_tx_byte) (forward to peer).
+
+BUG-005 | Severity: Info | Status: Documented
+-----------------------------------------------------------------------
+Title:   RBUF Stale Value After rbuf_full Cleared
+Spec:    RBUF behaviour after rbuf_full is cleared is implementation-
+         defined. Valid data is guaranteed only when RIR is set.
+Model:   VP m_rbuf retains the last received byte even after rbuf_full
+         is cleared by a RBUF read. A second consecutive read of RBUF
+         returns the stale (previously received) byte value.
+Test ID: ADV-006
+Fix:     Document in usart2.h. Optionally: clear m_rbuf to 0 on
+         RBUF read if m_rbuf_full is false, to avoid confusion.
+
+BUG-007 | Severity: High | Status: Open
+-----------------------------------------------------------------------
+Title:   Hardware Reset Pin (RES) Not Implemented
+Spec:    Table 1 (Port List) — RES Input: Reset — clears all registers
+         and internal state.
+         After RES assertion:
+           CON    → 0x00000000
+           STATUS → 0x00000000
+           BG     → 0x00000000
+           FDR    → 0x00000000
+           rbuf_full → false  (RBUF returns to idle)
+           m_frame_done_ev must be cancelled (abort in-progress frame)
+           TXD held high (idle line state)
+Model:   Usart2 struct has no sc_in<bool> rst port and no SWRST register.
+         Writing to SWRST offset 0x14 falls into the default: case of
+         b_transport — silently ignored.
+         All register state survives across what should be a reset.
+         In-progress frame events (m_frame_done_ev) are not cancelled.
+Tests:   RST-002 (CON not cleared)
+         RST-003 (STATUS not cleared)
+         RST-004 (rbuf_full not cleared — EIR fires on next byte)
+         RST-005 (mid-transfer STATUS not cleared; stale byte delivered)
+Fix:     Option A (preferred): add sc_in<bool> rst to Usart2; drive from
+           sc_main via sc_signal; write 1 to SWRST register causes
+           rst.write(true) for 1 delta cycle.
+         Option B (simpler): add OFF_SWRST = 0x14 case in b_transport;
+           on write of 1: m_con=0; m_status=0; m_rbuf=0;
+           m_rbuf_full=false; m_frame_done_ev.cancel();
+           sync_irq_trace(); sig_txd_line.write(true).
+Severity: High — firmware cannot reset the USART mid-operation; required
+          for error recovery, baud-rate reconfiguration, and driver init.
+
+BUG-006 | Severity: None | Status: Closed
+-----------------------------------------------------------------------
+Title:   EIR Gating via CON.OEN — Correct Implementation
+Spec:    EIR fires simultaneously with RIR when OE/FE/PE is set AND
+         the corresponding enable bit (OEN/FEN/PEN) is 1.
+Model:   VP rx_thread correctly gates EIR via (m_con & CON_OEN).
+         Tests ADV-001 (OEN=0) and ADV-002 (OEN=1) both pass.
+Test ID: FN-003, ADV-001, ADV-002, NEG-005
+Fix:     No fix required — compliant with spec.
+
+========================================================================
+SUMMARY
+  Total findings  : 7
+  Open issues     : 5 (BUG-001..004, BUG-007)
+  Documented      : 1 (BUG-005)
+  Closed/Compliant: 1 (BUG-006)
+
+IMPACT ASSESSMENT
+  These gaps do not affect the primary purpose of the usart2test
+  platform (PLIC interrupt path validation). The model correctly
+  exercises TBIR, TIR, RIR, EIR generation and the full RISC-V
+  machine-mode trap handler flow. BUG-002/003/004 would be required
+  for accurate baud-rate simulation and loopback firmware testing.
+========================================================================
