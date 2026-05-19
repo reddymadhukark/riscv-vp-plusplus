@@ -1,0 +1,68 @@
+
+        SystemC 3.0.1-Accellera --- May 15 2026 07:47:57
+        Copyright (c) 1996-2024 by all Contributors,
+        ALL RIGHTS RESERVED
+
+================================================
+  USART2 FUNCTIONAL TESTS (FN-001..005)
+================================================
+FN-001: A sends 0x55 → expect TBIR_A + RIR_B, RBUF_B=0x55
+[PASS] FN-001 A→B 0x55: TBIR_A + RIR_B + RBUF_B=0x55
+FN-002: B sends 0xAA → expect TBIR_B + RIR_A, RBUF_A=0xAA
+[PASS] FN-002 B→A 0xAA: TBIR_B + RIR_A + RBUF_A=0xAA
+FN-003: Overrun → RIR_B (byte 1), EIR_B (byte 2 while RBUF full)
+[PASS] FN-003 Overrun: RIR_B then EIR_B correctly generated
+FN-004: Multi-byte A→B [0xDE, 0xAD, 0xBE, 0xEF]
+  byte[0x00000000] exp=0x000000DE got=0x000000DE OK
+  byte[0x00000001] exp=0x000000AD got=0x000000AD OK
+  byte[0x00000002] exp=0x000000BE got=0x000000BE OK
+  byte[0x00000003] exp=0x000000EF got=0x000000EF OK
+[PASS] FN-004 Multi-byte stream A→B integrity verified
+FN-005: TIR TX-complete fires 2µs after TBIR
+[PASS] FN-005 TIR fires after TBIR (correct order, 2µs gap)
+
+================================================
+  Suite    : functional
+  Passed   : 5
+  Failed   : 0
+  RESULT   : ALL PASSED
+================================================
+
+Info: /OSCI/SystemC: Simulation stopped by user.
+=[ core : 0 ]===========================
+simulation time: 1796930 ns
+zero (x0) =        0
+ra   (x1) = 80000ce6
+sp   (x2) = 80fdffc0
+gp   (x3) =        0
+tp   (x4) =        0
+t0   (x5) = 8000d798
+t1   (x6) = 8000d798
+t2   (x7) =        0
+s0/fp(x8) =        0
+s1   (x9) =       18
+a0  (x10) = 8000156e
+a1  (x11) =        9
+a2  (x12) = 80fdffa4
+a3  (x13) =        a
+a4  (x14) =  9004004
+a5  (x15) =  9010000
+a6  (x16) = 80fdffa4
+a7  (x17) =        0
+s2  (x18) =        4
+s3  (x19) =  9002004
+s4  (x20) =  9003008
+s5  (x21) = 80001788
+s6  (x22) = 80001348
+s7  (x23) = 80001340
+s8  (x24) = 80001338
+s9  (x25) = 80001350
+s10 (x26) =       ef
+s11 (x27) =        0
+t3  (x28) =        0
+t4  (x29) =        0
+t5  (x30) =        0
+t6  (x31) =        0
+pc = 80000cee
+num-instr = 58105
+num-cycles (mcycle) = 106500

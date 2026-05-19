@@ -1,0 +1,46 @@
+
+        SystemC 3.0.1-Accellera --- May 15 2026 07:47:57
+        Copyright (c) 1996-2024 by all Contributors,
+        ALL RIGHTS RESERVED
+
+================================================
+  USART2 MEMORY LEAK / STABILITY TESTS (MEM-001..003)
+================================================
+MEM-001: 200 TBUF-write + STATUS-clear cycles
+=[ core : 0 ]===========================
+simulation time: 679880 ns
+zero (x0) =        0
+ra   (x1) = 80000866
+sp   (x2) = 80fdffd0
+gp   (x3) =        0
+tp   (x4) =        0
+t0   (x5) = 800013b4
+t1   (x6) = 800013b4
+t2   (x7) =        0
+s0/fp(x8) =       2a
+s1   (x9) = 80000da4
+a0  (x10) =       7e
+a1  (x11) =        2
+a2  (x12) =       80
+a3  (x13) = 80000da4
+a4  (x14) =       80
+a5  (x15) =        1
+a6  (x16) =        4
+a7  (x17) =       50
+s2  (x18) =        0
+s3  (x19) =  9002004
+s4  (x20) =       c8
+s5  (x21) =  9003020
+s6  (x22) =  9003008
+s7  (x23) =  9002020
+s8  (x24) =        f
+s9  (x25) =        1
+s10 (x26) =        0
+s11 (x27) =        0
+t3  (x28) =        0
+t4  (x29) =        0
+t5  (x30) =        0
+t6  (x31) =        0
+pc = 8000010c
+num-instr = 18184
+num-cycles (mcycle) = 41788

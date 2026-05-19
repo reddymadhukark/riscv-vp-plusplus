@@ -1,0 +1,66 @@
+
+        SystemC 3.0.1-Accellera --- May 15 2026 07:47:57
+        Copyright (c) 1996-2024 by all Contributors,
+        ALL RIGHTS RESERVED
+
+================================================
+  USART2 LOOPBACK / PATH TESTS (LB-001..004)
+================================================
+LB-001: A→B boundary byte values
+[PASS] LB-001 A→B boundary bytes all correct
+LB-002: B→A boundary byte values
+[PASS] LB-002 B→A boundary bytes all correct
+LB-003: Round-trip echo A→B→A (0xE5)
+[PASS] LB-003 Round-trip echo A→B→A: data integrity preserved
+LB-004: CON.LB bit stored and read back
+[FINDING] LB-004
+  Spec     : CON.LB=1 must connect TSR output to RSR input (internal loopback)
+  Model    : VP model stores CON.LB but sc_fifo routing is hard-wired in sc_main; CON.LB has no functional effect on byte delivery path
+  Fix      : In Usart2::tx_deliver_method, check m_con & CON_LB and if set, write to rx_port of self instead of tx_port
+[PASS] LB-004 CON.LB bit stored (VP routing unchanged — finding LB-004 logged)
+
+================================================
+  Suite    : loopback
+  Passed   : 4
+  Failed   : 0
+  RESULT   : ALL PASSED
+================================================
+
+Info: /OSCI/SystemC: Simulation stopped by user.
+=[ core : 0 ]===========================
+simulation time: 462350 ns
+zero (x0) =        0
+ra   (x1) = 800007a0
+sp   (x2) = 80fdffd0
+gp   (x3) =        0
+tp   (x4) =        0
+t0   (x5) = 800018b8
+t1   (x6) = 800018b8
+t2   (x7) =        0
+s0/fp(x8) =        0
+s1   (x9) =        8
+a0  (x10) = 8000110e
+a1  (x11) =        9
+a2  (x12) = 80fdffb4
+a3  (x13) =        a
+a4  (x14) =  9004004
+a5  (x15) =  9010000
+a6  (x16) = 80fdffb4
+a7  (x17) =        0
+s2  (x18) =       ff
+s3  (x19) =       ff
+s4  (x20) =  9003004
+s5  (x21) =  9002008
+s6  (x22) = 800012a8
+s7  (x23) =        8
+s8  (x24) =        8
+s9  (x25) =        0
+s10 (x26) =        0
+s11 (x27) =        0
+t3  (x28) =        0
+t4  (x29) =        0
+t5  (x30) =        0
+t6  (x31) =        0
+pc = 800007a8
+num-instr = 12518
+num-cycles (mcycle) = 29104

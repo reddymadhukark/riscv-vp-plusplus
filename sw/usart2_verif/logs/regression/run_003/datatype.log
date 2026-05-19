@@ -1,0 +1,73 @@
+
+        SystemC 3.0.1-Accellera --- May 15 2026 07:47:57
+        Copyright (c) 1996-2024 by all Contributors,
+        ALL RIGHTS RESERVED
+
+================================================
+  USART2 DATA TYPE TESTS (DT-001..003)
+================================================
+DT-001: All 256 byte values A→B (0x00..0xFF)
+  errors=0x00000000/256
+[PASS] DT-001 All 256 byte values transferred correctly A→B
+DT-002: Critical bit patterns A→B
+  pattern 0x00 got=0x00000000 OK
+  pattern 0xFF got=0x000000FF OK
+  pattern 0x55 got=0x00000055 OK
+  pattern 0xAA got=0x000000AA OK
+  pattern 0x0F got=0x0000000F OK
+  pattern 0xF0 got=0x000000F0 OK
+[PASS] DT-002 All critical bit patterns A→B correct
+DT-003: Critical bit patterns B→A
+  pattern 0x00 got=0x00000000 OK
+  pattern 0xFF got=0x000000FF OK
+  pattern 0x55 got=0x00000055 OK
+  pattern 0xAA got=0x000000AA OK
+  pattern 0x0F got=0x0000000F OK
+  pattern 0xF0 got=0x000000F0 OK
+[PASS] DT-003 All critical bit patterns B→A correct
+
+================================================
+  Suite    : datatype
+  Passed   : 3
+  Failed   : 0
+  RESULT   : ALL PASSED
+================================================
+
+Info: /OSCI/SystemC: Simulation stopped by user.
+=[ core : 0 ]===========================
+simulation time: 5410620 ns
+zero (x0) =        0
+ra   (x1) = 8000091c
+sp   (x2) = 80fdffc0
+gp   (x3) =        0
+tp   (x4) =        0
+t0   (x5) = 8000cf98
+t1   (x6) = 80000f88
+t2   (x7) =        0
+s0/fp(x8) =        0
+s1   (x9) = 80000f6c
+a0  (x10) = 80000d9a
+a1  (x11) =        9
+a2  (x12) = 80fdffa4
+a3  (x13) =        a
+a4  (x14) =  9004004
+a5  (x15) =  9010000
+a6  (x16) = 80fdffa4
+a7  (x17) =       50
+s2  (x18) = 80000dfe
+s3  (x19) =  9003004
+s4  (x20) =  9002008
+s5  (x21) = 80000f88
+s6  (x22) = 80000f6c
+s7  (x23) =        1
+s8  (x24) = 80000adc
+s9  (x25) = 80000bd8
+s10 (x26) = 80000bec
+s11 (x27) = 80000be4
+t3  (x28) =        0
+t4  (x29) =        0
+t5  (x30) =        0
+t6  (x31) =        0
+pc = 80000924
+num-instr = 154342
+num-cycles (mcycle) = 327411

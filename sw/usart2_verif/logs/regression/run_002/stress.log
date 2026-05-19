@@ -1,0 +1,46 @@
+
+        SystemC 3.0.1-Accellera --- May 15 2026 07:47:57
+        Copyright (c) 1996-2024 by all Contributors,
+        ALL RIGHTS RESERVED
+
+================================================
+  USART2 STRESS TESTS (STR-001..003)
+================================================
+STR-001: 100 sequential A→B bytes (pattern 0x00..0x63)
+=[ core : 0 ]===========================
+simulation time: 672910 ns
+zero (x0) =        0
+ra   (x1) = 8000062a
+sp   (x2) = 80fdffd0
+gp   (x3) =        0
+tp   (x4) =        0
+t0   (x5) = 80001630
+t1   (x6) = 80001630
+t2   (x7) =        0
+s0/fp(x8) =       2a
+s1   (x9) =        0
+a0  (x10) =       7e
+a1  (x11) =        2
+a2  (x12) =       80
+a3  (x13) = 80001020
+a4  (x14) =       80
+a5  (x15) =        1
+a6  (x16) =        4
+a7  (x17) =       50
+s2  (x18) =       29
+s3  (x19) =  9002004
+s4  (x20) =  9003008
+s5  (x21) = 80001020
+s6  (x22) =       64
+s7  (x23) =        5
+s8  (x24) = 80000b3c
+s9  (x25) = 80000b40
+s10 (x26) =        0
+s11 (x27) =        0
+t3  (x28) =        0
+t4  (x29) =        0
+t5  (x30) =        0
+t6  (x31) =        0
+pc = 8000010c
+num-instr = 18070
+num-cycles (mcycle) = 41254

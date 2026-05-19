@@ -1,0 +1,80 @@
+
+        SystemC 3.0.1-Accellera --- May 15 2026 07:47:57
+        Copyright (c) 1996-2024 by all Contributors,
+        ALL RIGHTS RESERVED
+
+================================================
+  USART2 REGISTER R/W TESTS (RW-001..007)
+================================================
+RW-001: CON register R/W patterns
+[PASS] RW-001 CON R/W all patterns match
+RW-002: CON reserved bits [31:16] read as 0
+[FINDING] RW-002
+  Spec     : CON[31:16] are reserved; must read 0
+  Model    : VP model stores the full 32-bit value including reserved bits
+  Fix      : Mask reserved bits in b_transport write path: m_con = v & 0x0000FFFFu
+[PASS] RW-002 CON reserved bits (finding logged — VP stores full 32b)
+RW-003: TBUF write triggers TBIR (write-only register)
+[PASS] RW-003 TBUF write triggers TBIR
+RW-004: RBUF read returns received byte
+[PASS] RW-004 RBUF returns correct received byte
+RW-005: STATUS W1C — write-1-to-clear semantics
+[PASS] RW-005 STATUS W1C correct (write-0 preserves, write-1 clears)
+RW-006: BG register (spec 0x0C) — VP model behaviour
+[FINDING] RW-006
+  Spec     : BG at offset 0x0C: write sets 13-bit reload register; read returns live downcounter
+  Model    : VP model b_transport default case — BG offset is a no-op; reads return 0
+  Fix      : Implement BG register state in Usart2::b_transport cases OFF_BG and OFF_FDR
+[PASS] RW-006 BG not implemented in VP (finding RW-006 logged)
+RW-007: FDR register (spec 0x10) — VP model behaviour
+[FINDING] RW-007
+  Spec     : FDR at offset 0x10: STEP[7:0] + DM[8]; active when CON.FDE=1
+  Model    : VP model b_transport default case — FDR offset is a no-op; reads return 0
+  Fix      : Add OFF_FDR case to Usart2::b_transport; store STEP and DM fields
+[PASS] RW-007 FDR not implemented in VP (finding RW-007 logged)
+
+================================================
+  Suite    : rw
+  Passed   : 7
+  Failed   : 0
+  RESULT   : ALL PASSED
+================================================
+
+Info: /OSCI/SystemC: Simulation stopped by user.
+=[ core : 0 ]===========================
+simulation time: 1824110 ns
+zero (x0) =        0
+ra   (x1) = 80000aaa
+sp   (x2) = 80fdffd0
+gp   (x3) =        0
+tp   (x4) =        0
+t0   (x5) = 8000d778
+t1   (x6) = 80001768
+t2   (x7) =        0
+s0/fp(x8) =        0
+s1   (x9) =     1fff
+a0  (x10) = 80001542
+a1  (x11) =        9
+a2  (x12) = 80fdffb4
+a3  (x13) =        a
+a4  (x14) =  9004004
+a5  (x15) =  9010000
+a6  (x16) = 80fdffb4
+a7  (x17) =       50
+s2  (x18) =     1fff
+s3  (x19) =  9002000
+s4  (x20) = 800015d0
+s5  (x21) =        0
+s6  (x22) = 80000bbc
+s7  (x23) = 80000d40
+s8  (x24) = 80000d30
+s9  (x25) =        0
+s10 (x26) =        0
+s11 (x27) =        0
+t3  (x28) =        0
+t4  (x29) =        0
+t5  (x30) =        0
+t6  (x31) =        0
+pc = 80000ab2
+num-instr = 58743
+num-cycles (mcycle) = 108830

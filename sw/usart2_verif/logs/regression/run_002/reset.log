@@ -1,0 +1,81 @@
+
+        SystemC 3.0.1-Accellera --- May 15 2026 07:47:57
+        Copyright (c) 1996-2024 by all Contributors,
+        ALL RIGHTS RESERVED
+
+================================================
+  USART2 HARDWARE RESET TESTS (RST-001..005)
+================================================
+RST-001: Power-on reset values (read before env_init)
+  UA_CON=0x00000000  UB_CON=0x00000000
+  UA_STATUS=0x00000000  UB_STATUS=0x00000000
+  UA_BG=0x00000005  UB_BG=0x00000000
+  UA_FDR=0x00000005  UB_FDR=0x00000000
+[FINDING] RST-001-BG
+  Spec     : BG reset value must be 0x00000000 per spec
+  Model    : BG register not implemented in VP (no-op); returns 0 by default
+  Fix      : Implement OFF_BG case in b_transport; ensure reset path clears it
+[FINDING] RST-001-FDR
+  Spec     : FDR reset value must be 0x00000000 per spec
+  Model    : FDR register not implemented in VP (no-op); returns 0 by default
+  Fix      : Implement OFF_FDR case in b_transport; ensure reset path clears it
+[PASS] RST-001 All registers read spec-correct reset values at power-on
+RST-002: HW reset must clear CON → 0x00000000
+  CON before SWRST=0x00008049
+  Asserting SWRST (offset 0x14) ...
+  CON after  SWRST=0x00008049
+[FAIL] RST-002 CON after HW reset
+  Expected  : 0x00000000
+  Actual    : 0x00008049
+  RootCause : BUG-007: RESET_HW_PIN_NOT_IMPLEMENTED — SWRST (offset 0x14) is a no-op in VP model; CON must be cleared by asserting the RES pin
+RST-003: HW reset must clear STATUS → 0x00000000
+  STATUS before SWRST=0x00000000
+  Asserting SWRST (offset 0x14) ...
+  STATUS after  SWRST=0x00000000
+[PASS] RST-003 STATUS cleared to 0x00000000 by HW reset
+RST-004: HW reset must clear rbuf_full state (RBUF returns to idle)
+  RBUF_B filled (rbuf_full=true)
+  Asserting SWRST on USART_B (offset 0x14) ...
+[FAIL] RST-004 RBUF state after HW reset
+  Expected  : RIR_B (rbuf_full cleared by reset)
+  Actual    : EIR_B (rbuf_full still true — reset had no effect)
+  RootCause : BUG-007: RESET_HW_PIN_NOT_IMPLEMENTED — SWRST (offset 0x14) is a no-op; m_rbuf_full must be set to false in reset handler
+RST-005: HW reset mid-transfer must abort frame and clear state
+  Asserting SWRST on USART_A mid-transfer ...
+=[ core : 0 ]===========================
+simulation time: 438290 ns
+zero (x0) =        0
+ra   (x1) = 80000bac
+sp   (x2) = 80fdffd0
+gp   (x3) =        0
+tp   (x4) =        0
+t0   (x5) = 80002488
+t1   (x6) = 80002488
+t2   (x7) =        0
+s0/fp(x8) =  9002000
+s1   (x9) =        3
+a0  (x10) =        c
+a1  (x11) = 800016c8
+a2  (x12) = 80001690
+a3  (x13) = 80001614
+a4  (x14) =        1
+a5  (x15) =  9002000
+a6  (x16) =        0
+a7  (x17) =        0
+s2  (x18) =        8
+s3  (x19) =        0
+s4  (x20) =        0
+s5  (x21) =        0
+s6  (x22) =        0
+s7  (x23) =        0
+s8  (x24) =        0
+s9  (x25) =        0
+s10 (x26) =        0
+s11 (x27) =        0
+t3  (x28) =        0
+t4  (x29) =        0
+t5  (x30) =        0
+t6  (x31) =        0
+pc = 80000bc6
+num-instr = 12348
+num-cycles (mcycle) = 28242

@@ -1,0 +1,63 @@
+
+        SystemC 3.0.1-Accellera --- May 15 2026 07:47:57
+        Copyright (c) 1996-2024 by all Contributors,
+        ALL RIGHTS RESERVED
+
+================================================
+  USART2 MEMORY LEAK / STABILITY TESTS (MEM-001..003)
+================================================
+MEM-001: 200 TBUF-write + STATUS-clear cycles
+  errors=0x00000000/200
+[PASS] MEM-001 200 TBIR cycles: no errors
+MEM-002: 100 send+receive+drain cycles
+  errors=0x00000000/100
+[PASS] MEM-002 100 RIR cycles: no errors
+MEM-003: 50 overrun+EIR+drain cycles
+  errors=0x00000000/50
+[PASS] MEM-003 50 EIR cycles: no errors
+
+================================================
+  Suite    : memory_leak
+  Passed   : 3
+  Failed   : 0
+  RESULT   : ALL PASSED
+================================================
+
+Info: /OSCI/SystemC: Simulation stopped by user.
+=[ core : 0 ]===========================
+simulation time: 7214050 ns
+zero (x0) =        0
+ra   (x1) = 80000818
+sp   (x2) = 80fdffd0
+gp   (x3) =        0
+tp   (x4) =        0
+t0   (x5) = 8000cdbc
+t1   (x6) = 80000dac
+t2   (x7) =        0
+s0/fp(x8) =        0
+s1   (x9) = 80000dbc
+a0  (x10) = 80000c36
+a1  (x11) =        9
+a2  (x12) = 80fdffb4
+a3  (x13) =        a
+a4  (x14) =  9004004
+a5  (x15) =  9010000
+a6  (x16) = 80fdffb4
+a7  (x17) =       50
+s2  (x18) =        0
+s3  (x19) =        8
+s4  (x20) =  9002004
+s5  (x21) =        0
+s6  (x22) =  9003008
+s7  (x23) =       b0
+s8  (x24) =  9002020
+s9  (x25) =        1
+s10 (x26) =        0
+s11 (x27) =        0
+t3  (x28) =        0
+t4  (x29) =        0
+t5  (x30) =        0
+t6  (x31) =        0
+pc = 80000820
+num-instr = 201331
+num-cycles (mcycle) = 438384
